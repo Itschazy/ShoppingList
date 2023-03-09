@@ -1,7 +1,7 @@
 package com.chxzyfps.shoppinglist.domain
 
-class EditShopItemUseCase {
-    fun editShopItem(item: ShopItem): ShopItem {
-        TODO()
+class EditShopItemUseCase(private val shopListRepository: ShopListRepository) {
+    fun editShopItem(shopItem: ShopItem): ShopItem {
+        return shopListRepository.editShopItem(shopItem)
     }
 }

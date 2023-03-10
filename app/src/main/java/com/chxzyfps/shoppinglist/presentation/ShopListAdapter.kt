@@ -1,5 +1,6 @@
 package com.chxzyfps.shoppinglist.presentation
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,8 @@ import com.chxzyfps.shoppinglist.R
 import com.chxzyfps.shoppinglist.domain.ShopItem
 
 class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>() {
+
+    var count = 0
 
     var shopList = listOf<ShopItem>()
         set(value) {
@@ -22,11 +25,15 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopItemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.item_shop_enabled,
-            parent,
-            false
-        )
+        Log.d("ShopListAdapter", "onCreateViewHolder count: ${++count}")
+
+        val layout = when (viewType) {
+            ENABLED_VIEWTYPE -> R.layout.item_shop_enabled
+            DISABLED_VIEWTYPE -> R.layout.item_shop_disabled
+            else -> throw RuntimeException("Unknown ViewType: $viewType")
+        }
+
+        val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
         return ShopItemViewHolder(view)
     }
 
@@ -37,11 +44,21 @@ class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopItemViewHolder>
         viewHolder.view.setOnLongClickListener {
             true
         }
+    }
 
+    override fun getItemViewType(position: Int): Int {
+        return if (shopList[position].enabled) ENABLED_VIEWTYPE else DISABLED_VIEWTYPE
     }
 
     override fun getItemCount(): Int {
         return shopList.size
+    }
+
+    companion object {
+        const val ENABLED_VIEWTYPE = 1
+        const val DISABLED_VIEWTYPE = 2
+
+        const val MAX_POOL_SIZE = 15
     }
 
 }

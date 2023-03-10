@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
             )
             recycledViewPool.setMaxRecycledViews(
                 ShopListAdapter.DISABLED_VIEWTYPE, ShopListAdapter.MAX_POOL_SIZE
+            )
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.chxzyfps.shoppinglist.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -7,6 +8,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.chxzyfps.shoppinglist.R
+import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.ADD_MODE
+import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.EDIT_MODE
+import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.EXTRA_SCREEN_MODE
+import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.newIntentAddItem
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +27,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it)
         }
+        val buttonAddShopItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
+        buttonAddShopItem.setOnClickListener {
+            val intent = newIntentAddItem(this)
+            startActivity(intent)
+        }
+
     }
 
     private fun setupRecyclerView() {
@@ -65,7 +77,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListener() {
         shopListAdapter.onShopItemClickListener = {
-            Log.d("onShopItemClickListener", "Item with id: ${it.id} was clicked")
+            val intent = ShopItemActivity.newIntentEditItem(this, it.id)
+            startActivity(intent)
         }
     }
 

@@ -2,19 +2,15 @@ package com.chxzyfps.shoppinglist.presentation
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import androidx.lifecycle.ViewModelProvider
+import androidx.appcompat.app.AppCompatActivity
 import com.chxzyfps.shoppinglist.R
 import com.chxzyfps.shoppinglist.domain.ShopItem
 import com.google.android.material.textfield.TextInputLayout
 
-class ShopItemActivity : AppCompatActivity() {
+class ShopItemActivity : AppCompatActivity(),ShopItemFragment.OnEditingFinishedListener {
 
 
     private lateinit var tilName: TextInputLayout
@@ -30,7 +26,9 @@ class ShopItemActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shop_item)
         parseIntent()
-        launchRightMode()
+        if (savedInstanceState == null) {
+            launchRightMode()
+        }
     }
 
     private fun launchRightMode() {
@@ -40,7 +38,7 @@ class ShopItemActivity : AppCompatActivity() {
             else -> throw RuntimeException("Unknown screen mode $screenMode")
         }
         supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container, fragment)
+            .replace(R.id.shop_item_container, fragment)
             .commit()
     }
 
@@ -81,5 +79,9 @@ class ShopItemActivity : AppCompatActivity() {
             intent.putExtra(EXTRA_SHOP_ITEM_ID, shopItemId)
             return intent
         }
+    }
+
+    override fun onEditingFinished() {
+        finish()
     }
 }

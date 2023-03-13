@@ -68,7 +68,7 @@ class ShopItemFragment(
             tilName.error = message
         }
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
-            finish()
+            activity?.onBackPressedDispatcher?.onBackPressed()
         }
     }
 
@@ -149,6 +149,15 @@ class ShopItemFragment(
         const val ADD_MODE = "add_mode"
         private const val UNKNOWN_MODE = ""
 
+        fun newInstanceEditItem(shopItemId: Int) : ShopItemFragment{
+            return ShopItemFragment(EDIT_MODE, shopItemId)
+        }
+
+        fun newInstanceAddItem() : ShopItemFragment {
+            return ShopItemFragment(ADD_MODE)
+        }
+
+
         fun newIntentAddItem(context: Context): Intent {
             val intent = Intent(context, ShopItemActivity::class.java)
             intent.putExtra(EXTRA_SCREEN_MODE, ADD_MODE)
@@ -162,5 +171,4 @@ class ShopItemFragment(
             return intent
         }
     }
-}
 }

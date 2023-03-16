@@ -7,11 +7,13 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.chxzyfps.shoppinglist.R
+import com.chxzyfps.shoppinglist.databinding.ActivityShopItemBinding
 import com.chxzyfps.shoppinglist.domain.ShopItem
 import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemActivity : AppCompatActivity(),ShopItemFragment.OnEditingFinishedListener {
 
+    private lateinit var binding: ActivityShopItemBinding
 
     private lateinit var tilName: TextInputLayout
     private lateinit var tilCount: TextInputLayout
@@ -24,7 +26,8 @@ class ShopItemActivity : AppCompatActivity(),ShopItemFragment.OnEditingFinishedL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_shop_item)
+        binding = ActivityShopItemBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         parseIntent()
         if (savedInstanceState == null) {
             launchRightMode()

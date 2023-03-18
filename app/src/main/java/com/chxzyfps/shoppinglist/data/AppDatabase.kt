@@ -15,22 +15,21 @@ abstract class AppDatabase : RoomDatabase() {
         private var INSTANCE: AppDatabase? = null
         private val LOCK = Any()
         private const val DB_NAME = "shop_list.db"
-    }
 
-    fun getInstance(application: Application): AppDatabase {
-        INSTANCE?.let {
-            return it
-        }
-        synchronized(LOCK) {
+        fun getInstance(application: Application): AppDatabase {
             INSTANCE?.let {
                 return it
             }
-            val db = Room.databaseBuilder(
-                application, AppDatabase::class.java, DB_NAME
-            ).build()
-            INSTANCE = db
-            return db
+            synchronized(LOCK) {
+                INSTANCE?.let {
+                    return it
+                }
+                val db = Room.databaseBuilder(
+                    application, AppDatabase::class.java, DB_NAME
+                ).build()
+                INSTANCE = db
+                return db
+            }
         }
     }
-
 }

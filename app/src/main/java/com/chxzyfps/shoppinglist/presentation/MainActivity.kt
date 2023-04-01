@@ -1,8 +1,6 @@
 package com.chxzyfps.shoppinglist.presentation
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,29 +10,32 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.chxzyfps.shoppinglist.R
 import com.chxzyfps.shoppinglist.databinding.ActivityMainBinding
-import com.chxzyfps.shoppinglist.domain.ShopItem
-import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.ADD_MODE
-import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.EDIT_MODE
-import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.EXTRA_SCREEN_MODE
 import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.newIntentAddItem
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var viewModel: MainViewModel
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    private val viewModel by lazy {
+        ViewModelProvider(this, viewModelFactory).get(MainViewModel::class.java)
+    }
     private lateinit var shopListAdapter: ShopListAdapter
     private var shopItemContainer: FragmentContainerView? = null
 
-
+    private val component by lazy {
+        (application as ShopListApp).component
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupRecyclerView()
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it)
         }

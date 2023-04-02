@@ -2,6 +2,7 @@ package com.chxzyfps.shoppinglist.presentation
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -11,8 +12,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.chxzyfps.shoppinglist.R
 import com.chxzyfps.shoppinglist.databinding.ActivityMainBinding
+import com.chxzyfps.shoppinglist.domain.ShopItem
 import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.newIntentAddItem
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
@@ -48,14 +51,30 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
                 startActivity(intent)
             }
         }
-        contentResolver.query(
-            Uri.parse("content://com.chxzyfps.shoppinglist/shop_items"),
-            null,
-            null,
-            null,
-            null,
-            null
-        )
+        thread {
+            val cursor = contentResolver.query(
+                Uri.parse("content://com.chxzyfps.shoppinglist/shop_items"),
+                null,
+                null,
+                null,
+                null,
+                null
+            )
+
+            while (cursor?.moveToNext() == true) {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+                val name = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+                val count = cursor.getInt(cursor.getColumnIndexOrThrow("count"))
+                val enabled = cursor.getInt(cursor.getColumnIndexOrThrow("enabled")) > 0
+
+                val shopItem = ShopItem(
+                    id = id, name = name, count = count, enabled = enabled
+                )
+                Log.d("MainActivity", shopItem.toString())
+            }
+            cursor?.close()
+        }
+
 
     }
 
@@ -66,12 +85,9 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
 
     private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.shop_item_container, fragment)
-            .addToBackStack(null)
-            .commit()
+        supportFragmentManager.beginTransaction().replace(R.id.shop_item_container, fragment)
+            .addToBackStack(null).commit()
     }
-
 
 
     private fun setupRecyclerView() {
@@ -92,8 +108,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
 
     private fun setupSwipeListener(rvShopList: RecyclerView?) {
         val callback = object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,

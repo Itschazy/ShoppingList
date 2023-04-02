@@ -34,6 +34,11 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <provider
+            android:name=".data.ShopListProvider"
+            android:authorities="com.chxzyfps.shoppinglist"
+            android:exported="true" />
     </application>
 
 </manifest>

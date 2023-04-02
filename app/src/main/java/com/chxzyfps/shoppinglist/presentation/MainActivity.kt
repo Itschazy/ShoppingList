@@ -1,5 +1,6 @@
 package com.chxzyfps.shoppinglist.presentation
 
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -47,6 +48,14 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
                 startActivity(intent)
             }
         }
+        contentResolver.query(
+            Uri.parse("content://com.chxzyfps.shoppinglist/shop_items"),
+            null,
+            null,
+            null,
+            null,
+            null
+        )
 
     }
 

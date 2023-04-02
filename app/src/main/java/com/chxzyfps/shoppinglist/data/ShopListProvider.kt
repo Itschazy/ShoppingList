@@ -6,6 +6,7 @@ import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
 import android.util.Log
+import com.chxzyfps.shoppinglist.domain.ShopItem
 import com.chxzyfps.shoppinglist.presentation.ShopListApp
 import javax.inject.Inject
 
@@ -14,6 +15,9 @@ class ShopListProvider : ContentProvider() {
     @Inject
     lateinit var shopListDao: ShopListDao
 
+    @Inject
+    lateinit var mapper: ShopListMapper
+
     private val component by lazy {
         (context as ShopListApp).component
     }
@@ -21,6 +25,7 @@ class ShopListProvider : ContentProvider() {
     private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
         addURI("com.chxzyfps.shoppinglist", "shop_items", GET_SHOP_ITEMS_QUERY)
     }
+
     override fun onCreate(): Boolean {
         component.inject(this)
         return true
@@ -34,10 +39,11 @@ class ShopListProvider : ContentProvider() {
         sortOrder: String?
     ): Cursor? {
 
-        return when(uriMatcher.match(uri)) {
+        return when (uriMatcher.match(uri)) {
             GET_SHOP_ITEMS_QUERY -> {
                 shopListDao.getShopListCursor()
             }
+
             else -> null
         }
     }
@@ -47,20 +53,55 @@ class ShopListProvider : ContentProvider() {
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        TODO("Not yet implemented")
+        when (uriMatcher.match(uri)) {
+            GET_SHOP_ITEMS_QUERY -> {
+                if (values == null) return null
+                val id = values.getAsInteger("id")
+                val name = values.getAsString("name")
+                val count = values.getAsInteger("count")
+                val enabled = values.getAsBoolean("enabled")
+                val shopItem = ShopItem(
+                    id = id,
+                    name = name,
+                    count = count,
+                    enabled = enabled
+                )
+                shopListDao.addShopItemSync(mapper.mapEntityToDbModel(shopItem))
+            }
+        }
+        return null
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
-        TODO("Not yet implemented")
+        when (uriMatcher.match(uri)) {
+            GET_SHOP_ITEMS_QUERY -> {
+                val id = selectionArgs?.get(0)?.toInt() ?: -1
+                return shopListDao.deleteShopitemSync(id)
+            }
+        }
+        return 0
     }
 
     override fun update(
-        uri: Uri,
-        values: ContentValues?,
-        selection: String?,
-        selectionArgs: Array<out String>?
+        uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?
     ): Int {
-        TODO("Not yet implemented")
+        when (uriMatcher.match(uri)) {
+            GET_SHOP_ITEMS_QUERY -> {
+                if (values == null) return 0
+                val id = values.getAsInteger("id")
+                val name = values.getAsString("name")
+                val count = values.getAsInteger("count")
+                val enabled = values.getAsBoolean("enabled")
+                val shopItem = ShopItem(
+                    id = id,
+                    name = name,
+                    count = count,
+                    enabled = enabled
+                )
+                shopListDao.addShopItemSync(mapper.mapEntityToDbModel(shopItem))
+            }
+        }
+        return 0
     }
 
     companion object {

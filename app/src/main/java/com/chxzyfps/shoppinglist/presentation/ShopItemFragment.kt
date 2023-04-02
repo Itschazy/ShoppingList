@@ -1,7 +1,9 @@
 package com.chxzyfps.shoppinglist.presentation
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -20,6 +22,7 @@ import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.ADD_MOD
 import com.chxzyfps.shoppinglist.presentation.ShopItemActivity.Companion.EDIT_MODE
 import com.google.android.material.textfield.TextInputLayout
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class ShopItemFragment : Fragment() {
 
@@ -31,7 +34,7 @@ class ShopItemFragment : Fragment() {
     }
 
     private val component by lazy {
-        (requireActivity().application  as ShopListApp).component
+        (requireActivity().application as ShopListApp).component
     }
 
     private lateinit var onEditingFinishedListener: OnEditingFinishedListener
@@ -118,13 +121,37 @@ class ShopItemFragment : Fragment() {
     private fun launchEditMode() {
         viewModel.getShopItem(shopitemId)
         binding.buttonSave.setOnClickListener {
-            viewModel.editShopItem(binding.etName.text.toString(), binding.etCount.text.toString())
+//            viewModel.editShopItem(binding.etName.text.toString(), binding.etCount.text.toString())
+            thread {
+                context?.contentResolver?.update(
+                    Uri.parse("content://com.chxzyfps.shoppinglist/shop_items"),
+                    ContentValues().apply {
+                        put("id", viewModel.shopItem.value?.id)
+                        put("name", binding.etName.text.toString())
+                        put("count", binding.etCount.text.toString().toInt())
+                        put("enabled", viewModel.shopItem.value?.enabled)
+                    },
+                    null,
+                    arrayOf(viewModel.shopItem.value?.id.toString())
+                )
+            }
         }
     }
 
     private fun launchAddMode() {
         binding.buttonSave.setOnClickListener {
-            viewModel.addShopItem(binding.etName.text.toString(), binding.etCount.text.toString())
+//            viewModel.addShopItem(binding.etName.text.toString(), binding.etCount.text.toString())
+            thread {
+                context?.contentResolver?.insert(
+                    Uri.parse("content://com.chxzyfps.shoppinglist/shop_items"),
+                    ContentValues().apply {
+                        put("id", 0)
+                        put("name", binding.etName.text?.toString())
+                        put("count", binding.etCount.text?.toString()?.toInt())
+                        put("enabled", true)
+                    })
+            }
+
         }
     }
 
